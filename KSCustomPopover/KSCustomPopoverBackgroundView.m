@@ -24,6 +24,7 @@
 
 
 #import "KSCustomPopoverBackgroundView.h"
+#import <QuartzCore/QuartzCore.h>
 
 // Predefined arrow image width and height
 #define ARROW_WIDTH 35.0
@@ -80,13 +81,28 @@
 -(void) setArrowOffset:(CGFloat)arrowOffset
 {
     _arrowOffset = arrowOffset;
+    [self addDropShadowIfNecessary];
     [self setNeedsLayout];
 }
 
 -(void) setArrowDirection:(UIPopoverArrowDirection)arrowDirection
 {
     _arrowDirection = arrowDirection;
+    [self addDropShadowIfNecessary];    
     [self setNeedsLayout];
+}
+
+- (void)addDropShadowIfNecessary
+{
+    // Popover background drop shadows don't appear to work on iOS 5.x, so we have to draw the shadow manually. iOS 6.0 adds the +wantsDefaultAppearance class method. Check for the existence (or absence) of this method.
+    if (![UIPopoverBackgroundView respondsToSelector:@selector(wantsDefaultContentAppearance)])
+    {
+        CALayer *layer = self.layer;
+        layer.shadowColor = [UIColor blackColor].CGColor;
+        layer.shadowOpacity = 0.9;
+        layer.shadowRadius = 20.0;
+        layer.shadowOffset = (CGSize){ .width = 0.0, .height = 10.0 };
+    }
 }
 
 #pragma mark - Initialization
